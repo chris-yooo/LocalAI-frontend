@@ -31,7 +31,7 @@ const ChatGptInterface = () => {
     try {
       const requestOptions = {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*"},
         body: JSON.stringify({
           model: selectedModel,
           messages: [
