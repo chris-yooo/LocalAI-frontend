@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect, Fragment } from "react";
 import "./index.css";
 
-const host = process.env.REACT_APP_API_HOST;
+// const host = process.env.REACT_APP_API_HOST;
+const host = "http://195.201.170.57:8080";
 const temperature = 0.7;
 
 const ChatGptInterface = () => {
@@ -31,7 +32,10 @@ const ChatGptInterface = () => {
     try {
       const requestOptions = {
         method: "POST",
-        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*"},
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
+        },
         body: JSON.stringify({
           model: selectedModel,
           messages: [
@@ -67,7 +71,7 @@ const ChatGptInterface = () => {
             const line = lines[i];
             if (line.startsWith("data: ")) {
               const jsonStr = line.substring("data: ".length);
-              if (jsonStr == "[DONE]") {
+              if (jsonStr === "[DONE]") {
                 done = true;
               } else {
                 const json = JSON.parse(jsonStr);
@@ -132,7 +136,7 @@ const ChatGptInterface = () => {
     // Function to fetch data from the API endpoint
     const fetchData = async () => {
       try {
-        const response = await fetch(`${host}/models/available`);
+        const response = (await fetch(`${host}/models/available`)).headers = "Access-Control-Allow-Origin: *, Access-Control-Allow-Headers: *";
         const data = await response.json();
 
         // Process the data and extract the "name" field from each object
@@ -140,7 +144,7 @@ const ChatGptInterface = () => {
 
         // Append the names to the modelList state
         setModelList(names);
-        console.log("The list is:",names);
+        console.log("The list is:", names);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -157,18 +161,21 @@ const ChatGptInterface = () => {
       id: selectedModel
     };
 
-    const curlCommand = `curl ${host}/models/apply -H "Content-Type: application/json" -d '${JSON.stringify(data)}'`;
+    const curlCommand = `curl ${host}/models/apply -H "Content-Type: application/json,Access-Control-Allow-Origin: *" -d '${JSON.stringify(data)}'`;
     console.log("Equivalent cURL command:", curlCommand);
     try {
       const requestOptions = {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
+        },
         body: JSON.stringify(data)
       };
 
       const response = await fetch(`${host}/models/apply`, requestOptions);
       const responsedata = await response.json();
-      console.log("The response URL should be here:",responsedata);
+      console.log("The response URL should be here:", responsedata);
       console.log("Model Apply response is:", response.statusText);
     } catch (error) {
       console.error("Error:", error);
@@ -183,7 +190,7 @@ const ChatGptInterface = () => {
 
   const handleGalleryChange = (event) => {
     const selectedModel = event.target.value;
-    console.log("the selected model is:",selectedModel);
+    console.log("the selected model is:", selectedModel);
     handlemodelSubmit(selectedModel);
   };
   const handleModelChange = (e) => {
@@ -225,19 +232,19 @@ const ChatGptInterface = () => {
             </option>
           ))}
         </select>
-        
+
         <select className="right-dropdown"
-        value={''} // Make sure to set a value, usually an empty string, not the modelList state itself
-        onChange={handleGalleryChange}
-        disabled={isLoading}
-      >
-        <option value="">Model Gallery</option>
-        {modelList.map((name, index) => (
-          <option key={index} value={name}>
-            {name}
-          </option>
-        ))}
-      </select>
+          value={''} // Make sure to set a value, usually an empty string, not the modelList state itself
+          onChange={handleGalleryChange}
+          disabled={isLoading}
+        >
+          <option value="">Model Gallery</option>
+          {modelList.map((name, index) => (
+            <option key={index} value={name}>
+              {name}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="chat-container" ref={chatContainerRef}>
@@ -246,9 +253,8 @@ const ChatGptInterface = () => {
           {messages.map((message, index) => (
             <div
               key={index}
-              className={`chat-message ${
-                message.role === "user" ? "user-message" : "assistant-message"
-              }`}
+              className={`chat-message ${message.role === "user" ? "user-message" : "assistant-message"
+                }`}
             >
               <span className="message-role">
                 {message.role === "user" ? "You" : "LocalAI"}:
